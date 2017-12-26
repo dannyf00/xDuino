@@ -19,8 +19,8 @@ typedef signed long		int32_t;
   #include "board_atmega8.h"
 #elif 	defined(BOARD_PIC16F193X)		//for PIC16F193x/PIC16LF193x
   #include "board_pic16f193x.h"
-#elif 	defined(BOARD_AT89C51)			//for AT89C51
-  #include "board_at89c51.h"
+#elif 	defined(BOARD_PIC18FXXK20)		//for PIC18FxxK20
+  #include "board_pic18fxxk20.h"
 #else
 #warning "no board defined!"
 #endif
