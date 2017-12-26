@@ -1,7 +1,7 @@
 #ifndef BOARDS_H_INCLUDED
 #define BOARDS_H_INCLUDED
 
-//#include <stdint.h>						//for intx_t types - if not available, use the following defs
+#include <stdint.h>						//for intx_t types - if not available, use the following defs
 
 typedef unsigned char 	uint8_t;
 typedef unsigned short	uint16_t;
@@ -17,10 +17,12 @@ typedef signed long		int32_t;
   #include "board_atmega328p.h"
 #elif 	defined(BOARD_ATMEGA8)			//for ATMEGA8/8L
   #include "board_atmega8.h"
-#elif 	defined(BOARD_PIC16F193X)		//for PIC16F193x/PIC16LF193x
+#elif 	defined(BOARD_PIC16F193X)		//for PIC16F1933/4/6/7/8/9 and PIC16LF1933/4/6/7/8/9
   #include "board_pic16f193x.h"
-#elif 	defined(BOARD_PIC18FXXK20)		//for PIC18FxxK20
+#elif 	defined(BOARD_PIC18FXXK20)		//for PIC18F23/23/25/26K20 and PIC18F43/44/45/46K20
   #include "board_pic18fxxk20.h"
+#elif 	defined(BOARD_PIC24FJ64GA102)	//for PIC24FJ32GA102/104 and PIC24FJ64GA102/104
+  #include "board_pic24fj64ga102.h"
 #else
 #warning "no board defined!"
 #endif

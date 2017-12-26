@@ -1,6 +1,6 @@
 #include "xduino.h"								//include xduino defs
 
-#define LED		D21								//D21 = RC5
+#define LED		D21								//D21 = RB5
 
 //user setup
 void setup(void) {
