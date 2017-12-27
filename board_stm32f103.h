@@ -1,8 +1,8 @@
-#ifndef BOARD_STM32F100_H_INCLUDED
-#define BOARD_STM32F100_H_INCLUDED
+#ifndef BOARD_STM32F103_H_INCLUDED
+#define BOARD_STM32F103_H_INCLUDED
 
-//implemented for STM32F100
-//v0.10: 12/26/2017
+//implemented for STM32F103
+//v0.10: 12/27/2017
 //GPIO: pinMode(), digitalWrite(), digitalRead()
 //timing: ticks(), micros(), millis(), delayTicks(), delayMicros()/delayMicroseconds(), delayMillis()/delayMilliseconds()/delay()
 //not implemented
@@ -57,16 +57,12 @@ typedef enum {
 #define GPIOMODE_AFPP		0x09			//0b1001->alternative function output, push-pull, 10Mhz
 #define GPIOMODE_AFOD		0x0d			//0b1101->alternative function output, open-drain, 10Mhz
 
-//configure gpio mode (cnf1..0 + mod1..0 bits)
-void GPIO_DDR(GPIO_TypeDef * gpio, uint32_t mask, uint32_t mode);
-
 //port definitions
 //GPIO-based
 #define IO_SET(gpio, bits)	gpio->BSRR = (bits)		//gpio->ODR |= (bits)		//set bits on gpio
 #define IO_CLR(gpio, bits)	gpio->BRR  = (bits)		//gpio->ODR &=~(bits)		//clear bits on gpio
 #define IO_FLP(gpio, bits)	gpio->ODR ^= (bits)		//flip bits on gpio
 #define IO_GET(gpio, bits)	((gpio->IDR) & (bits))	//return bits on gpio
-//set a pin to output/input
 #define IO_OUTPP(port, pins)				GPIO_DDR(port, pins, GPIOMODE_OUTPP)	//push-pull mode (CR1 set, CR2 cleared)	//IO_OUTPP(GPIOx, GPIO_Pins).
 //#define IO_OUTOD(port, pins)				GPIO_DDR(port, pins, GPIOMODE_OUTOD)	//open drain mode (cr1 + cr2 cleared)	//_GPIO_Init(GPIOx, GPIO_Pins, GPIO_MODE_OUT_OD_LOW_FAST)
 #define IO_OUT(port, pins)					IO_OUTPP(port, pins)					//_GPIO_Init(GPIOx, GPIO_Pins, GPIO_MODE_OUT_PP_LOW_FAST)
@@ -76,6 +72,7 @@ void GPIO_DDR(GPIO_TypeDef * gpio, uint32_t mask, uint32_t mode);
 //#define IO_AFPP(port, pins)					GPIO_DDR(port, pins, GPIOMODE_AFPP)		//configure pin for alternative function output, push-pull, 10Mhz
 //#define IO_AFOD(port, pins)					GPIO_DDR(port, pins, GPIOMODE_AFOD)		//configure pin for alternative function output, open-drain, 10Mhz
 //#define IO_AN(port, pins)					GPIO_DDR(port, pins, GPIOMODE_INAN)
+
 
 //struct used to map a pin to GPIO+mask
 typedef struct {

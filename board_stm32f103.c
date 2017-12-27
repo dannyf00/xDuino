@@ -1,5 +1,5 @@
 #include "xduino.h"						//use xduino generic defs
-#include "board_stm32f100.h"				//we use board-specific defs
+#include "board_stm32f103.h"				//we use board-specific defs
 
 //put board specific implementation here
 
@@ -238,6 +238,7 @@ void GPIO_DDR(GPIO_TypeDef * gpio, uint32_t mask, uint32_t mode) {
 	if (mask & (1ul<<13)) gpio->CRH = (gpio->CRH &~0x00f00000ul) | (mode << (5 * 4));
 	if (mask & (1ul<<14)) gpio->CRH = (gpio->CRH &~0x0f000000ul) | (mode << (6 * 4));
 	if (mask & (1ul<<15)) gpio->CRH = (gpio->CRH &~0xf0000000ul) | (mode << (7 * 4));
+
 }
 
 //set pin mode
@@ -252,7 +253,7 @@ void pinMode(PIN_T pin, uint8_t mode) {
 		case OUTPUT:		IO_OUT(gpio, mask); break;
 		case INPUT_PULLUP:	IO_INPU(gpio, mask); break;
 		case INPUT:
-		default:			IO_INFL(gpio, mask); break;
+		default:			IO_INFL(gpio, mask);
 	}
 }
 

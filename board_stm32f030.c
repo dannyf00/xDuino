@@ -1,5 +1,5 @@
 #include "xduino.h"						//use xduino generic defs
-#include "board_stm32f100.h"				//we use board-specific defs
+#include "board_stm32f030.h"				//we use board-specific defs
 
 //put board specific implementation here
 
@@ -83,7 +83,7 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOD, 1 <<14},						//D46= PE6
 	{GPIOD, 1 <<15},						//D47= PE7
 
-#if defined(RCC_APB2ENR_IOPEEN)
+#if defined(RCC_AHBENR_GPIOEEN)
 	//PE0..15
 	{GPIOE, 1 <<  0},						//ARMduino Pin 32 = PE0
 	{GPIOE, 1 <<  1},						//ARMduino Pin 33 = PE1
@@ -103,7 +103,7 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOE, 1 << 15},						//ARMduino Pin 39 = PE15
 #endif
 
-#if defined(RCC_APB2ENR_IOPFEN)			//GPIOF not present on all chips
+#if defined(RCC_AHBENR_GPIOFEN)			//GPIOF not present on all chips
 	{GPIOF, 1 <<  0},						//ARMduino Pin 40 = PF0
 	{GPIOF, 1 <<  1},						//ARMduino Pin 41 = PF1
 	{GPIOF, 1 <<  2},						//ARMduino Pin 42 = PF2
@@ -122,7 +122,7 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOF, 1 << 15},						//ARMduino Pin 47 = PF15
 #endif
 
-#if defined(RCC_APB2ENR_IOPGEN)			//GPIOG not present on all chips
+#if defined(RCC_AHBENR_GPIOGEN)			//GPIOG not present on all chips
 	{GPIOG, 1 <<  0},						//ARMduino Pin 48 = PG0
 	{GPIOG, 1 <<  1},						//ARMduino Pin 49 = PG1
 	{GPIOG, 1 <<  2},						//ARMduino Pin 50 = PG2
@@ -174,19 +174,19 @@ void mcu_init(void) {
 
 	//route clock to gpio
 	//enable clock to GPIO
-	RCC->APB2ENR |=
-			RCC_APB2ENR_IOPAEN |
-			RCC_APB2ENR_IOPBEN |
-			RCC_APB2ENR_IOPCEN |
-			RCC_APB2ENR_IOPDEN |
-#if defined(RCC_APB2ENR_IOPEEN)
-			RCC_APB2ENR_IOPEEN |
+	RCC->AHBENR |=
+			RCC_AHBENR_GPIOAEN |
+			RCC_AHBENR_GPIOBEN |
+			RCC_AHBENR_GPIOCEN |
+			RCC_AHBENR_GPIODEN |
+#if defined(RCC_AHBENR_GPIOEEN)
+			RCC_AHBENR_GPIOEEN |
 #endif
-#if defined(RCC_APB2ENR_IOPFEN)
-			RCC_APB2ENR_IOPFEN |
+#if defined(RCC_AHBENR_GPIOFEN)
+			RCC_AHBENR_GPIOFEN |
 #endif
-#if defined(RCC_APB2ENR_IOPGEN)
-			RCC_APB2ENR_IOPGEN |
+#if defined(RCC_AHBENR_GPIOGEN)
+			RCC_AHBENR_GPIOGEN |
 #endif
 			0x00;
 }
@@ -216,28 +216,30 @@ uint32_t millis(void) {
 }
 
 //configure gpio DDR mode (cnf1..0 + mod1..0 bits)
-void GPIO_DDR(GPIO_TypeDef * gpio, uint32_t mask, uint32_t mode) {
-	mode = mode & 0x0f;				//lowest 4 bits effective
+void GPIO_DDR(GPIO_TypeDef * GPIOx, uint32_t mask, uint32_t mode) {
+	uint8_t pos;
+	//uint32_t pin_mask;
 
-	//for the lowest 8 bits
-	if (mask & (1ul<< 0)) gpio->CRL = (gpio->CRL &~0x0000000ful) | (mode << (0 * 4));
-	if (mask & (1ul<< 1)) gpio->CRL = (gpio->CRL &~0x000000f0ul) | (mode << (1 * 4));
-	if (mask & (1ul<< 2)) gpio->CRL = (gpio->CRL &~0x00000f00ul) | (mode << (2 * 4));
-	if (mask & (1ul<< 3)) gpio->CRL = (gpio->CRL &~0x0000f000ul) | (mode << (3 * 4));
-	if (mask & (1ul<< 4)) gpio->CRL = (gpio->CRL &~0x000f0000ul) | (mode << (4 * 4));
-	if (mask & (1ul<< 5)) gpio->CRL = (gpio->CRL &~0x00f00000ul) | (mode << (5 * 4));
-	if (mask & (1ul<< 6)) gpio->CRL = (gpio->CRL &~0x0f000000ul) | (mode << (6 * 4));
-	if (mask & (1ul<< 7)) gpio->CRL = (gpio->CRL &~0xf0000000ul) | (mode << (7 * 4));
+	for (pos=0; pos < 16; pos++) {
+		//looking for pin position / mask
+		//pin_mask = 1ul << pos;
+		if (mask & (1ul << pos)) {
+			//we have found the pos / pin_mask
+			if ((mode & GPIOMODE_OUTPUT) || (mode & GPIOMODE_AF)) {
+				GPIOx->OSPEEDR &=~(0x03ul << (2 * pos));	//clear ospeeder
+				GPIOx->OSPEEDR |= (0x01ul << (2 * pos));	//set to medium speed (0x01)
 
-	//for the highest 8 bits
-	if (mask & (1ul<< 8)) gpio->CRH = (gpio->CRH &~0x0000000ful) | (mode << (0 * 4));
-	if (mask & (1ul<< 9)) gpio->CRH = (gpio->CRH &~0x000000f0ul) | (mode << (1 * 4));
-	if (mask & (1ul<<10)) gpio->CRH = (gpio->CRH &~0x00000f00ul) | (mode << (2 * 4));
-	if (mask & (1ul<<11)) gpio->CRH = (gpio->CRH &~0x0000f000ul) | (mode << (3 * 4));
-	if (mask & (1ul<<12)) gpio->CRH = (gpio->CRH &~0x000f0000ul) | (mode << (4 * 4));
-	if (mask & (1ul<<13)) gpio->CRH = (gpio->CRH &~0x00f00000ul) | (mode << (5 * 4));
-	if (mask & (1ul<<14)) gpio->CRH = (gpio->CRH &~0x0f000000ul) | (mode << (6 * 4));
-	if (mask & (1ul<<15)) gpio->CRH = (gpio->CRH &~0xf0000000ul) | (mode << (7 * 4));
+				GPIOx->OTYPER &=~(1ul << pos);				//clear otyper
+				GPIOx->OTYPER |= ((mode & GPIOMODE_PP)?0ul:1ul) << pos;	//0->pp, 1->od
+			}
+
+			GPIOx->MODER &=~(0x03 << (2 * pos));			//clear moder
+			GPIOx->MODER |= (mode & 0x03) << (2 * pos);		//set moder
+
+			GPIOx->PUPDR &=~(0x03 << (2 * pos));			//clear pupdr
+			GPIOx->PUPDR |= ((mode >> 4) & 0x03) << (2 * pos);	//set pupdr
+		}
+	}
 }
 
 //set pin mode
