@@ -21,12 +21,14 @@ typedef signed long		int32_t;
   #include "board_pic16f193x.h"
 #elif 	defined(BOARD_PIC18FXXK20)		//for PIC18F23/23/25/26K20 and PIC18F43/44/45/46K20
   #include "board_pic18fxxk20.h"
-#elif 	defined(BOARD_PIC24FJ64GA102)	//for PIC24FJ32GA102/104 and PIC24FJ64GA102/104
+#elif 	defined(BOARD_PIC24FJ64GA102)		//for PIC24FJ32GA102/104 and PIC24FJ64GA102/104
   #include "board_pic24fj64ga102.h"
 #elif 	defined(BOARD_STM8S105)			//for STM8S105
   #include "board_stm8s105.h"
 #elif 	defined(BOARD_STM8S003)			//for STM8S003
   #include "board_stm8s003.h"
+#elif 	defined(BOARD_STM32F100)		//for STM32F100
+  #include "board_stm32f100.h"
 #else
 #warning "no board defined!"
 #endif
