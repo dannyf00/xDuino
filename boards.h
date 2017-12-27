@@ -2,14 +2,14 @@
 #define BOARDS_H_INCLUDED
 
 #include <stdint.h>						//for intx_t types - if not available, use the following defs
-
+/*
 typedef unsigned char 	uint8_t;
 typedef unsigned short	uint16_t;
 typedef unsigned long	uint32_t;
 typedef signed char 	int8_t;
 typedef signed short	int16_t;
 typedef signed long		int32_t;
-
+*/
 //put board specific header here
 #if 	defined(BOARD_AT89C51)			//for AT89C51
   #include "board_at89c51.h"
@@ -23,6 +23,10 @@ typedef signed long		int32_t;
   #include "board_pic18fxxk20.h"
 #elif 	defined(BOARD_PIC24FJ64GA102)	//for PIC24FJ32GA102/104 and PIC24FJ64GA102/104
   #include "board_pic24fj64ga102.h"
+#elif 	defined(BOARD_STM8S105)			//for STM8S105
+  #include "board_stm8s105.h"
+#elif 	defined(BOARD_STM8S003)			//for STM8S003
+  #include "board_stm8s003.h"
 #else
 #warning "no board defined!"
 #endif
