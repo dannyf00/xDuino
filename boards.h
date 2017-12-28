@@ -37,6 +37,10 @@ typedef signed long		int32_t;
   #include "board_stm32f303.h"
 #elif 	defined(BOARD_STM32F407)		//for STM32F407
   #include "board_stm32f407.h"
+#elif 	defined(BOARD_MSP432)			//for MSP432
+  #include "board_msp432.h"
+#elif 	defined(BOARD_LPC12XX)			//for LPC12XX
+  #include "board_lpc12xx.h"
 #else
 #warning "no board defined!"
 #endif
