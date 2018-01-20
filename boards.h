@@ -41,6 +41,8 @@ typedef signed long		int32_t;
   #include "board_msp432.h"
 #elif 	defined(BOARD_LPC12XX)			//for LPC12XX
   #include "board_lpc12xx.h"
+#elif 	defined(BOARD_LPC13XX)			//for LPC13XX
+  #include "board_lpc13xx.h"
 #elif 	defined(BOARD_PIC32MX)			//for PIC32MX1/2/3
   #include "board_pic32mx.h"
 #else
