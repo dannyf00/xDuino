@@ -61,6 +61,52 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOE, 1<<5},						//D37= PE5
 	{GPIOE, 1<<6},						//D38= PE6
 	{GPIOE, 1<<7},						//D39= PE7
+
+	//PF0..7
+	{GPIOF, 1<<0},						//D32= PE0
+	{GPIOF, 1<<1},						//D33= PE1
+	{GPIOF, 1<<2},						//D34= PE2
+	{GPIOF, 1<<3},						//D35= PE3
+	{GPIOF, 1<<4},						//D36= PE4
+	{GPIOF, 1<<5},						//D37= PE5
+	{GPIOF, 1<<6},						//D38= PE6
+	{GPIOF, 1<<7},						//D39= PE7
+
+#if defined(GPIOG)
+	//PG0..7
+	{GPIOG, 1<<0},						//D32= PE0
+	{GPIOG, 1<<1},						//D33= PE1
+	{GPIOG, 1<<2},						//D34= PE2
+	{GPIOG, 1<<3},						//D35= PE3
+	{GPIOG, 1<<4},						//D36= PE4
+	{GPIOG, 1<<5},						//D37= PE5
+	{GPIOG, 1<<6},						//D38= PE6
+	{GPIOG, 1<<7},						//D39= PE7
+#endif
+	
+#if defined(GPIOH)
+	//PH0..7
+	{GPIOH, 1<<0},						//D32= PE0
+	{GPIOH, 1<<1},						//D33= PE1
+	{GPIOH, 1<<2},						//D34= PE2
+	{GPIOH, 1<<3},						//D35= PE3
+	{GPIOH, 1<<4},						//D36= PE4
+	{GPIOH, 1<<5},						//D37= PE5
+	{GPIOH, 1<<6},						//D38= PE6
+	{GPIOH, 1<<7},						//D39= PE7
+#endif
+	
+#if defined(GPIOI)
+	//PI0..7
+	{GPIOI, 1<<0},						//D32= PE0
+	{GPIOI, 1<<1},						//D33= PE1
+	{GPIOI, 1<<2},						//D34= PE2
+	{GPIOI, 1<<3},						//D35= PE3
+	{GPIOI, 1<<4},						//D36= PE4
+	{GPIOI, 1<<5},						//D37= PE5
+	{GPIOI, 1<<6},						//D38= PE6
+	{GPIOI, 1<<7},						//D39= PE7
+#endif
 };
 
 //timer4 overflow interrupt handler

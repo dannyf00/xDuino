@@ -1,8 +1,8 @@
 #ifndef BOARD_STM32F030_H_INCLUDED
 #define BOARD_STM32F030_H_INCLUDED
 
-//implemented for STM32F103
-//v0.10: 12/27/2017
+//implemented for STM32F030
+//v0.10: 12/28/2017
 //GPIO: pinMode(), digitalWrite(), digitalRead()
 //timing: ticks(), micros(), millis(), delayTicks(), delayMicros()/delayMicroseconds(), delayMillis()/delayMilliseconds()/delay()
 //not implemented
@@ -30,18 +30,18 @@ typedef   signed long 	 int32_t;
 
 //pin defs for gpio functions
 typedef enum {
-	D0,  D1,  D2,  D3,  D4,  D5,  D6,  D7,  D8,  D9,  D10, D11, D12, D13, D14, D15,		//map to PA0..15 (PC7 is missing)
-	D16, D17, D18, D19, D20, D21, D22, D23,	D24, D25, D26, D27, D28, D29, D30, D31,		//map to PB0..15
-	D32, D33, D34, D35, D36, D37, D38, D39,	D40, D41, D42, D43, D44, D45, D46, D47,		//map to PC0..15
-	D48, D49, D50, D51, D52, D53, D54, D55,	D56, D57, D58, D59, D60, D61, D62, D63,		//map to PD0..15
+	PA0,  PA1,  PA2,  PA3,  PA4,  PA5,  PA6,  PA7,  PA8,  PA9,  PA10, PA11, PA12, PA13, PA14, PA15,		//map to PA0..15 (PC7 is missing)
+	PB0,  PB1,  PB2,  PB3,  PB4,  PB5,  PB6,  PB7,  PB8,  PB9,  PB10, PB11, PB12, PB13, PB14, PB15,		//map to PB0..15 (PC7 is missing)
+	PC0,  PC1,  PC2,  PC3,  PC4,  PC5,  PC6,  PC7,  PC8,  PC9,  PC10, PC11, PC12, PC13, PC14, PC15,		//map to PC0..15 (PC7 is missing)
+	PD0,  PD1,  PD2,  PD3,  PD4,  PD5,  PD6,  PD7,  PD8,  PD9,  PD10, PD11, PD12, PD13, PD14, PD15,		//map to PD0..15 (PC7 is missing)
 #if defined(RCC_AHBENR_GPIOEEN)
-	D64, D65, D66, D67, D68, D69, D70, D71,	D72, D73, D74, D75, D76, D77, D78, D79,		//map to PE0..15
+	PE0,  PE1,  PE2,  PE3,  PE4,  PE5,  PE6,  PE7,  PE8,  PE9,  PE10, PE11, PE12, PE13, PE14, PE15,		//map to PE0..15 (PC7 is missing)
 #endif
 #if defined(RCC_AHBENR_GPIOFEN)
-	D80, D81, D82, D83, D84, D85, D86, D87,	D88, D89, D90, D91, D92, D93, D94, D95,		//map to PE0..15
+	PF0,  PF1,  PF2,  PF3,  PF4,  PF5,  PF6,  PF7,  PF8,  PF9,  PF10, PF11, PF12, PF13, PF14, PF15,		//map to PF0..15 (PC7 is missing)
 #endif
 #if defined(RCC_AHBENR_GPIOGEN)
-	D96, D97, D98, D99, D100,D101,D102,D103,D104,D105,D106,D107,D108,D109,D110,D111,	//map to PE0..15
+	PG0,  PG1,  PG2,  PG3,  PG4,  PG5,  PG6,  PG7,  PG8,  PG9,  PG10, PG11, PG12, PG13, PG14, PG15,		//map to PG0..15 (PC7 is missing)
 #endif
 	DMAX										//boundary check
 } PIN_T;

@@ -55,11 +55,20 @@ void SystemCoreClockHSI(uint8_t CLK_HSIDIV);
 
 //pin defs for gpio functions
 typedef enum {
-	D0,  D1,  D2,  D3,  D4,  D5,  D6,  D7,		//maps to PA0..7
-	D8,  D9,  D10, D11, D12, D13, D14, D15,		//maps to PB0..7 (PC7 is missing)
-	D16, D17, D18, D19, D20, D21, D22, D23, 	//maps to PC0..7
-	D24, D25, D26, D27, D28, D29, D30, D31,		//maps to PD0..7
-	D32, D33, D34, D35, D36, D37, D38, D39,		//maps to PE0..7
+	PA0,  PA1,  PA2,  PA3,  PA4,  PA5,  PA6,  PA7,		//maps to PA0..7
+	PB0,  PB1,  PB2,  PB3,  PB4,  PB5,  PB6,  PB7,		//maps to PB0..7
+	PC0,  PC1,  PC2,  PC3,  PC4,  PC5,  PC6,  PC7,		//maps to PC0..7
+	PD0,  PD1,  PD2,  PD3,  PD4,  PD5,  PD6,  PD7,		//maps to PD0..7
+	PE0,  PE1,  PE2,  PE3,  PE4,  PE5,  PE6,  PE7,		//maps to PE0..7
+#if defined(GPIOF)
+	PF0,  PF1,  PF2,  PF3,  PF4,  PF5,  PF6,  PF7,		//maps to PF0..7
+#endif
+#if defined(GPIOH)
+	PH0,  PH1,  PH2,  PH3,  PH4,  PH5,  PH6,  PH7,		//maps to PH0..7
+#endif
+#if defined(GPIOI)
+	PI0,  PI1,  PI2,  PI3,  PI4,  PI5,  PI6,  PI7,		//maps to PI0..7
+#endif
 	DMAX										//boundary check
 } PIN_T;
 

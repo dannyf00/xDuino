@@ -1,4 +1,4 @@
-#include "xduino.h"						//use xduino generic defs
+#include "xduino.h"							//use xduino generic defs
 #include "board_stm32f030.h"				//we use board-specific defs
 
 //put board specific implementation here
