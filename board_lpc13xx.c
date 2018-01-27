@@ -45,6 +45,7 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIO0, 1 <<30},						//D30= PD6
 	{GPIO0, 1 <<31},						//D31= PD7
 
+#if defined(LPC_GPIO1)
 	//P10..31
 	{GPIO1, 1 << 0},						//D32= PE0
 	{GPIO1, 1 << 1},						//D33= PE1
@@ -78,6 +79,7 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIO1, 1 <<29},						//D45= PE5
 	{GPIO1, 1 <<30},						//D46= PE6
 	{GPIO1, 1 <<31},						//D47= PE7
+#endif
 
 #if defined(LPC_GPIO2)
 	//P20..31
