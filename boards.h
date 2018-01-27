@@ -21,8 +21,8 @@ typedef signed long		int32_t;
   #include "board_pic16f193x.h"
 #elif 	defined(BOARD_PIC18FXXK20)		//for PIC18F23/23/25/26K20 and PIC18F43/44/45/46K20
   #include "board_pic18fxxk20.h"
-#elif 	defined(BOARD_PIC24FJ64GA102)		//for PIC24FJ32GA102/104 and PIC24FJ64GA102/104
-  #include "board_pic24fj64ga102.h"
+#elif 	defined(BOARD_PIC24F)			//for PIC24FJ32GA102/104 and PIC24FJ64GA102/104
+  #include "board_pic24f.h"
 #elif 	defined(BOARD_STM8S105)			//for STM8S105
   #include "board_stm8s105.h"
 #elif 	defined(BOARD_STM8S003)			//for STM8S003
@@ -47,7 +47,7 @@ typedef signed long		int32_t;
   #include "board_pic32mx.h"
 #elif 	defined(BOARD_TM4C123)			//for TM4C123
   #include "board_tm4c123.h"
-#elif 	defined(BOARD_LM3S)				//for LM3S
+#elif 	defined(BOARD_LM3S)			//for LM3S
   #include "board_lm3s.h"
 #elif 	defined(BOARD_MSP430)			//for MSP430FR5969
   #include "board_msp430.h"
