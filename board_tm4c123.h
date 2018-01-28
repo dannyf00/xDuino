@@ -25,7 +25,7 @@ typedef   signed long 	 int32_t;
 //timer ccp switches
 //uncomment if not used
 //defs for 16-bit PWM/CCP
-#define TxCCP_PR								(1ul<<10)			//up to 16-bit period / top
+#define TxCCP_PR								(1ul<<16)			//up to 16-bit period / top
 //#define USE_T0CCP0								//TIMER0CCP0 - PF0 - don't use this pin (locked)
 #define USE_T0CCP1								//TIMER0CCP1 - PF1
 #define USE_T1CCP0								//TIMER1CCP0 - PF2

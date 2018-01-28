@@ -148,6 +148,31 @@ uint16_t analogRead(AIN_T ain);
 
 //Serial IO
 
+//Serial comm
+void Serial0_begin(uint32_t baudrate);
+void Serial0_println(char *str);
+void Serial0_print(char *str);
+char Serial0_available(void);
+char Serial0_read(void);
+
+void Serial1_begin(uint32_t baudrate);
+void Serial1_println(char *str);
+void Serial1_print(char *str);
+char Serial1_available(void);
+char Serial1_read(void);
+
+void Serial2_begin(uint32_t baudrate);
+void Serial2_println(char *str);
+void Serial2_print(char *str);
+char Serial2_available(void);
+char Serial2_read(void);
+
+void Serial3_begin(uint32_t baudrate);
+void Serial3_println(char *str);
+void Serial3_print(char *str);
+char Serial3_available(void);
+char Serial3_read(void);
+
 //Advanced IO
 //tone()
 //noTone()
