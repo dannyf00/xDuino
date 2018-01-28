@@ -21,6 +21,46 @@ typedef   signed short 	 int16_t;
 typedef   signed long 	 int32_t;
 */
 
+//hardware configuration
+//timer ccp switches
+//uncomment if not used
+//defs for 16-bit PWM/CCP
+#define TxCCP_PR								(1ul<<10)			//up to 16-bit period / top
+//#define USE_T0CCP0								//TIMER0CCP0 - PF0 - don't use this pin (locked)
+#define USE_T0CCP1								//TIMER0CCP1 - PF1
+#define USE_T1CCP0								//TIMER1CCP0 - PF2
+#define USE_T1CCP1								//TIMER1CCP1 - PF3
+#define USE_T2CCP0								//TIMER2CCP0 - PB0
+#define USE_T2CCP1								//TIMER2CCP1 - PB1
+#define USE_T3CCP0								//TIMER3CCP0 - PB2
+#define USE_T3CCP1								//TIMER3CCP1 - PB3
+//the following pins are shared with the debugger
+//so don't use them if you want to debug the chip
+//#define USE_T4CCP0								//TIMER4CCP0 - PC0 - don't use this pin (SWCLK)
+//#define USE_T4CCP1								//TIMER4CCP1 - PC1 - don't use this pin (SWDIO)
+//#define USE_T5CCP0								//TIMER5CCP0 - PC2 - don't use this pin (TDI)
+//#define USE_T5CCP1								//TIMER5CCP1 - PC3 - don't use this pin (TDO)
+
+//defs for 32-bit PWM/CCP
+#define WTxCCP_PR								(1ul<<12)			//up to 32-bit period / top
+#define USE_WT0CCP0								//WTIMER0CCP0 - PC4
+#define USE_WT0CCP1								//WTIMER0CCP1 - PC5
+#define USE_WT1CCP0								//WTIMER1CCP0 - PC6
+#define USE_WT1CCP1								//WTIMER1CCP1 - PC7
+#define USE_WT2CCP0								//WTIMER2CCP0 - PD0
+#define USE_WT2CCP1								//WTIMER2CCP1 - PD1
+#define USE_WT3CCP0								//WTIMER3CCP0 - PD2
+#define USE_WT3CCP1								//WTIMER3CCP1 - PD3
+#define USE_WT4CCP0								//WTIMER4CCP0 - PD4
+#define USE_WT4CCP1								//WTIMER4CCP1 - PD5
+#define USE_WT5CCP0								//WTIMER5CCP0 - PD6
+#define USE_WT5CCP1								//WTIMER5CCP1 - PD7
+//end hardware configuration
+
+//prescale does not seem to work in 16-bit mode
+//please keep TxCCP_PS at 1
+#define TxCCP_PS								1					//8-bit prescaler for 16/32-bit timers - prescale does not seem to work in 16-bit mode
+
 //put board specific defs here
 //user must provide the following macros
 #define F_CPU				(SystemCoreClock)	//CPU frequency, in Hz
