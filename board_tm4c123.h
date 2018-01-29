@@ -126,4 +126,54 @@ typedef enum {
 	AMAX										//boundary check
 } AIN_T;
 
+//serial comms
+void Serial0_begin(uint32_t baudrate);
+void Serial0_println(char *str);
+void Serial0_print(char *str);
+char Serial0_available(void);
+char Serial0_read(void);
+
+void Serial1_begin(uint32_t baudrate);
+void Serial1_println(char *str);
+void Serial1_print(char *str);
+char Serial1_available(void);
+char Serial1_read(void);
+
+void Serial2_begin(uint32_t baudrate);
+void Serial2_println(char *str);
+void Serial2_print(char *str);
+char Serial2_available(void);
+char Serial2_read(void);
+
+void Serial3_begin(uint32_t baudrate);
+void Serial3_println(char *str);
+void Serial3_print(char *str);
+char Serial3_available(void);
+char Serial3_read(void);
+
+void Serial4_begin(uint32_t baudrate);
+void Serial4_println(char *str);
+void Serial4_print(char *str);
+char Serial4_available(void);
+char Serial4_read(void);
+
+void Serial5_begin(uint32_t baudrate);
+void Serial5_println(char *str);
+void Serial5_print(char *str);
+char Serial5_available(void);
+char Serial5_read(void);
+
+void Serial6_begin(uint32_t baudrate);
+void Serial6_println(char *str);
+void Serial6_print(char *str);
+char Serial6_available(void);
+char Serial6_read(void);
+
+void Serial7_begin(uint32_t baudrate);
+void Serial7_println(char *str);
+void Serial7_print(char *str);
+char Serial7_available(void);
+char Serial7_read(void);
+
+
 #endif // BOARD_ATMEGA328P_H_INCLUDED

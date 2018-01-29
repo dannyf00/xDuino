@@ -1938,3 +1938,368 @@ char Serial3_read(void) {
 	return UART3->DR;
 }
 
+void Serial4_begin(uint32_t baudrate) {
+	//uart4: tx on PC5, rx on PC4
+	//route clock to GPIO
+	SYSCTL->RCGCGPIO |= (1<<2);				//0->GPIOA, 1->GPIOB, 2->GPIOC, ...
+	while ((SYSCTL->PRGPIO & (1<<2)) == 0) continue;	//1->peripheral ready, 0-> not ready
+	//configure PC4 for alternate function / mux group 1
+	//GPIOC->DEN |= (1<<4); GPIOC->AFSEL |= (1<<4); GPIOC->PCTL = (GPIOC->PCTL &~(0x0f << (4*4))) | (0x01 << (4*4));
+	//configure PC5 for alternate function / mux group 1
+	GPIOC->DEN |= (1<<5); GPIOC->AFSEL |= (1<<5); GPIOC->PCTL = (GPIOC->PCTL &~(0x0f << (5*4))) | (0x01 << (5*4));
+
+	//route clock to UART
+	SYSCTL->RCGCUART |= (1<<4);				//0->UART0, 1->UART1, ...
+	while ((SYSCTL->PRUART & (1<<4)) == 0) continue;	//1->peripheral ready, 0-> not ready
+
+	//stop the uart
+	UART4->CTL &=~(1<<0);					//1->enable uart, 0->disable uart
+
+	//set HSE for high speed
+	UART4->CTL =	(0<<15) |				//0->clear to send disabled, 1->clear to send enabled
+					(0<<14) |				//0->request to send disabled, 1->request to send enabled
+					(0<<11) |				//1->RTS signal received, 0->RTS not received
+					(0<< 9) |				//1->enable uart receive, 0->disable uart receive
+					(0<< 8) |				//1->enable uart transmit, 0->disable uart transmit
+					(0<< 7) |				//0->normal operation, 1->TX/RX loop back enabled
+					(1<< 5) |				//0->HSE disabled, divide by 16, 1->HSE enabled, divide by 8
+					(0<< 4) |				//0->set TXRIS when UARTIFLS is met, 1->TXRIS set only after all transmitted data have been sent
+					(0<< 3) | 				//0->normal operation, 1->UART in smart card mode
+					(0<< 2) |				//0->low level bits transmitted as active high, 1->uart in SIR low-power mode
+					(0<< 1) |				//0->normal operation, 1->IrDA SIR enabled
+					(0<< 0) |				//0->uart is disabled, 1->uart is enabled
+					0x00;
+	if (GPIOC->AFSEL & (1<<4)) UART4->CTL |= (1<<9); else UART4->CTL &=~(1<<9);	//enable receiving if PC4 is configured for alternate function
+	if (GPIOC->AFSEL & (1<<5)) UART4->CTL |= (1<<8); else UART4->CTL &=~(1<<8);	//enable transmission if PC5 is configured for alternate function
+
+	if (UART4->CTL & (1<<5)) {				//HSE bit set -> divide by 8
+		//calculate the integer baud rate
+		UART4->IBRD = SystemCoreClock / baudrate / 8;
+		//calculate the fractional baud rate = 64*fraction
+		UART4->FBRD = (8 * SystemCoreClock / baudrate - UART4->IBRD * 64);
+	} else {								//HSE bit cleared -> divide by 16
+		//calculate the integer baud rate
+		UART4->IBRD = SystemCoreClock / baudrate / 16;
+		//calculate the fractional baud rate = 64*fraction
+		UART4->FBRD = (4 * SystemCoreClock / baudrate - UART4->IBRD * 64);
+	}
+
+	//configure serial parameters in LCRH
+	UART4->LCRH = 	(0<<7) |				//0->stick parity disabled, 1->stick parity enabled
+					(3<<5) |				//word length. 0->5bit, 1->6bit, 2->7bit, 3->8bit
+					(1<<4) |				//0->fifo disabled, 1->fifo enabled
+					(0<<3) |				//0->1 stop bit, 1->two stop bits
+					(0<<2) |				//0->odd parity, 1->even parity. no effect if parity is disabled (bit 1 cleared)
+					(0<<1) |				//0->parity disabled, 1->parity enabled
+					(0<<0) | 				//0->normal use, 1->send break
+					0x00;
+
+	//configure the uart clock source
+	UART4->CC = 0x00;						//0x00->system clock used, 0x05->PIOSC used
+
+	//clear the flags
+	UART4->IM = 0x00;						//all interrupt disabled
+	UART4->ICR = 0xffff;						//1->clear flags
+
+	//start the uart
+	UART4->CTL |= (1<<0);					//1->enable uart, 0->disable uart
+
+}
+
+
+void Serial4_println(char *str) {
+	Serial4_print(str);
+	Serial4_print("\n\r");
+}
+
+void Serial4_print(char *str) {
+	while (*str) {
+		//while (UART4->FR & (1<<3)) continue;	//wait for transmision to end - most conservative
+		while (UART4->FR & (1<<5)) continue;	//wait for transmision buffer to free up - most aggressive
+		UART4->DR = *str++;
+	}
+}
+
+//only return 1 (indicating data availability), or 0 (no data available)
+char Serial4_available(void) {
+	return (UART4->FR & (1<<4))?1:0;
+}
+
+char Serial4_read(void) {
+	return UART4->DR;
+}
+
+
+void Serial5_begin(uint32_t baudrate) {
+	//uart5: tx on PE5, rx on PE4
+	//route clock to GPIO
+	SYSCTL->RCGCGPIO |= (1<<4);				//0->GPIOA, 1->GPIOB, 2->GPIOC, ...
+	while ((SYSCTL->PRGPIO & (1<<4)) == 0) continue;	//1->peripheral ready, 0-> not ready
+	//configure PE4 for alternate function / mux group 1
+	//GPIOE->DEN |= (1<<4); GPIOE->AFSEL |= (1<<4); GPIOE->PCTL = (GPIOE->PCTL &~(0x0f << (4*4))) | (0x01 << (4*4));
+	//configure PE5 for alternate function / mux group 1
+	GPIOE->DEN |= (1<<5); GPIOE->AFSEL |= (1<<5); GPIOE->PCTL = (GPIOE->PCTL &~(0x0f << (5*4))) | (0x01 << (5*4));
+
+	//route clock to UART
+	SYSCTL->RCGCUART |= (1<<5);				//0->UART0, 1->UART1, ...
+	while ((SYSCTL->PRUART & (1<<5)) == 0) continue;	//1->peripheral ready, 0-> not ready
+
+	//stop the uart
+	UART5->CTL &=~(1<<0);					//1->enable uart, 0->disable uart
+
+	//set HSE for high speed
+	UART5->CTL =	(0<<15) |				//0->clear to send disabled, 1->clear to send enabled
+					(0<<14) |				//0->request to send disabled, 1->request to send enabled
+					(0<<11) |				//1->RTS signal received, 0->RTS not received
+					(0<< 9) |				//1->enable uart receive, 0->disable uart receive
+					(0<< 8) |				//1->enable uart transmit, 0->disable uart transmit
+					(0<< 7) |				//0->normal operation, 1->TX/RX loop back enabled
+					(1<< 5) |				//0->HSE disabled, divide by 16, 1->HSE enabled, divide by 8
+					(0<< 4) |				//0->set TXRIS when UARTIFLS is met, 1->TXRIS set only after all transmitted data have been sent
+					(0<< 3) | 				//0->normal operation, 1->UART in smart card mode
+					(0<< 2) |				//0->low level bits transmitted as active high, 1->uart in SIR low-power mode
+					(0<< 1) |				//0->normal operation, 1->IrDA SIR enabled
+					(0<< 0) |				//0->uart is disabled, 1->uart is enabled
+					0x00;
+	if (GPIOE->AFSEL & (1<<4)) UART5->CTL |= (1<<9); else UART5->CTL &=~(1<<9);	//enable receiving if PE4 is configured for alternate function
+	if (GPIOE->AFSEL & (1<<5)) UART5->CTL |= (1<<8); else UART5->CTL &=~(1<<8);	//enable transmission if PE5 is configured for alternate function
+
+	if (UART5->CTL & (1<<5)) {				//HSE bit set -> divide by 8
+		//calculate the integer baud rate
+		UART5->IBRD = SystemCoreClock / baudrate / 8;
+		//calculate the fractional baud rate = 64*fraction
+		UART5->FBRD = (8 * SystemCoreClock / baudrate - UART5->IBRD * 64);
+	} else {								//HSE bit cleared -> divide by 16
+		//calculate the integer baud rate
+		UART5->IBRD = SystemCoreClock / baudrate / 16;
+		//calculate the fractional baud rate = 64*fraction
+		UART5->FBRD = (4 * SystemCoreClock / baudrate - UART5->IBRD * 64);
+	}
+
+	//configure serial parameters in LCRH
+	UART5->LCRH = 	(0<<7) |				//0->stick parity disabled, 1->stick parity enabled
+					(3<<5) |				//word length. 0->5bit, 1->6bit, 2->7bit, 3->8bit
+					(1<<4) |				//0->fifo disabled, 1->fifo enabled
+					(0<<3) |				//0->1 stop bit, 1->two stop bits
+					(0<<2) |				//0->odd parity, 1->even parity. no effect if parity is disabled (bit 1 cleared)
+					(0<<1) |				//0->parity disabled, 1->parity enabled
+					(0<<0) | 				//0->normal use, 1->send break
+					0x00;
+
+	//configure the uart clock source
+	UART5->CC = 0x00;						//0x00->system clock used, 0x05->PIOSC used
+
+	//clear the flags
+	UART5->IM = 0x00;						//all interrupt disabled
+	UART5->ICR = 0xffff;						//1->clear flags
+
+	//start the uart
+	UART5->CTL |= (1<<0);					//1->enable uart, 0->disable uart
+
+}
+
+
+void Serial5_println(char *str) {
+	Serial5_print(str);
+	Serial5_print("\n\r");
+}
+
+void Serial5_print(char *str) {
+	while (*str) {
+		//while (UART5->FR & (1<<3)) continue;	//wait for transmision to end - most conservative
+		while (UART5->FR & (1<<5)) continue;	//wait for transmision buffer to free up - most aggressive
+		UART5->DR = *str++;
+	}
+}
+
+//only return 1 (indicating data availability), or 0 (no data available)
+char Serial5_available(void) {
+	return (UART5->FR & (1<<4))?1:0;
+}
+
+char Serial5_read(void) {
+	return UART5->DR;
+}
+
+void Serial6_begin(uint32_t baudrate) {
+	//uart6: tx on PD5, rx on PD4
+	//route clock to GPIO
+	SYSCTL->RCGCGPIO |= (1<<3);				//0->GPIOA, 1->GPIOB, 2->GPIOC, ...
+	while ((SYSCTL->PRGPIO & (1<<3)) == 0) continue;	//1->peripheral ready, 0-> not ready
+	//configure PD4 for alternate function / mux group 1
+	//GPIOD->DEN |= (1<<4); GPIOD->AFSEL |= (1<<4); GPIOD->PCTL = (GPIOD->PCTL &~(0x0f << (4*4))) | (0x01 << (4*4));
+	//configure PD5 for alternate function / mux group 1
+	GPIOD->DEN |= (1<<5); GPIOD->AFSEL |= (1<<5); GPIOD->PCTL = (GPIOD->PCTL &~(0x0f << (5*4))) | (0x01 << (5*4));
+
+	//route clock to UART
+	SYSCTL->RCGCUART |= (1<<6);				//0->UART0, 1->UART1, ...
+	while ((SYSCTL->PRUART & (1<<6)) == 0) continue;	//1->peripheral ready, 0-> not ready
+
+	//stop the uart
+	UART6->CTL &=~(1<<0);					//1->enable uart, 0->disable uart
+
+	//set HSE for high speed
+	UART6->CTL =	(0<<15) |				//0->clear to send disabled, 1->clear to send enabled
+					(0<<14) |				//0->request to send disabled, 1->request to send enabled
+					(0<<11) |				//1->RTS signal received, 0->RTS not received
+					(0<< 9) |				//1->enable uart receive, 0->disable uart receive
+					(0<< 8) |				//1->enable uart transmit, 0->disable uart transmit
+					(0<< 7) |				//0->normal operation, 1->TX/RX loop back enabled
+					(1<< 5) |				//0->HSE disabled, divide by 16, 1->HSE enabled, divide by 8
+					(0<< 4) |				//0->set TXRIS when UARTIFLS is met, 1->TXRIS set only after all transmitted data have been sent
+					(0<< 3) | 				//0->normal operation, 1->UART in smart card mode
+					(0<< 2) |				//0->low level bits transmitted as active high, 1->uart in SIR low-power mode
+					(0<< 1) |				//0->normal operation, 1->IrDA SIR enabled
+					(0<< 0) |				//0->uart is disabled, 1->uart is enabled
+					0x00;
+	if (GPIOD->AFSEL & (1<<4)) UART6->CTL |= (1<<9); else UART6->CTL &=~(1<<9);	//enable receiving if PD4 is configured for alternate function
+	if (GPIOD->AFSEL & (1<<5)) UART6->CTL |= (1<<8); else UART6->CTL &=~(1<<8);	//enable transmission if PD5 is configured for alternate function
+
+	if (UART6->CTL & (1<<5)) {				//HSE bit set -> divide by 8
+		//calculate the integer baud rate
+		UART6->IBRD = SystemCoreClock / baudrate / 8;
+		//calculate the fractional baud rate = 64*fraction
+		UART6->FBRD = (8 * SystemCoreClock / baudrate - UART6->IBRD * 64);
+	} else {								//HSE bit cleared -> divide by 16
+		//calculate the integer baud rate
+		UART6->IBRD = SystemCoreClock / baudrate / 16;
+		//calculate the fractional baud rate = 64*fraction
+		UART6->FBRD = (4 * SystemCoreClock / baudrate - UART6->IBRD * 64);
+	}
+
+	//configure serial parameters in LCRH
+	UART6->LCRH = 	(0<<7) |				//0->stick parity disabled, 1->stick parity enabled
+					(3<<5) |				//word length. 0->5bit, 1->6bit, 2->7bit, 3->8bit
+					(1<<4) |				//0->fifo disabled, 1->fifo enabled
+					(0<<3) |				//0->1 stop bit, 1->two stop bits
+					(0<<2) |				//0->odd parity, 1->even parity. no effect if parity is disabled (bit 1 cleared)
+					(0<<1) |				//0->parity disabled, 1->parity enabled
+					(0<<0) | 				//0->normal use, 1->send break
+					0x00;
+
+	//configure the uart clock source
+	UART6->CC = 0x00;						//0x00->system clock used, 0x05->PIOSC used
+
+	//clear the flags
+	UART6->IM = 0x00;						//all interrupt disabled
+	UART6->ICR = 0xffff;						//1->clear flags
+
+	//start the uart
+	UART6->CTL |= (1<<0);					//1->enable uart, 0->disable uart
+
+}
+
+
+void Serial6_println(char *str) {
+	Serial6_print(str);
+	Serial6_print("\n\r");
+}
+
+void Serial6_print(char *str) {
+	while (*str) {
+		//while (UART6->FR & (1<<3)) continue;	//wait for transmision to end - most conservative
+		while (UART6->FR & (1<<5)) continue;	//wait for transmision buffer to free up - most aggressive
+		UART6->DR = *str++;
+	}
+}
+
+//only return 1 (indicating data availability), or 0 (no data available)
+char Serial6_available(void) {
+	return (UART6->FR & (1<<4))?1:0;
+}
+
+char Serial6_read(void) {
+	return UART6->DR;
+}
+
+void Serial7_begin(uint32_t baudrate) {
+	//uart7: tx on PE1, rx on PE0
+	//route clock to GPIO
+	SYSCTL->RCGCGPIO |= (1<<4);				//0->GPIOA, 1->GPIOB, 2->GPIOC, ...
+	while ((SYSCTL->PRGPIO & (1<<4)) == 0) continue;	//1->peripheral ready, 0-> not ready
+	//configure PE0 for alternate function / mux group 1
+	//GPIOE->DEN |= (1<<0); GPIOE->AFSEL |= (1<<0); GPIOE->PCTL = (GPIOE->PCTL &~(0x0f << (0*4))) | (0x01 << (0*4));
+	//configure PE1 for alternate function / mux group 1
+	GPIOE->DEN |= (1<<1); GPIOE->AFSEL |= (1<<1); GPIOE->PCTL = (GPIOE->PCTL &~(0x0f << (1*4))) | (0x01 << (1*4));
+
+	//route clock to UART
+	SYSCTL->RCGCUART |= (1<<7);				//0->UART0, 1->UART1, ...
+	while ((SYSCTL->PRUART & (1<<7)) == 0) continue;	//1->peripheral ready, 0-> not ready
+
+	//stop the uart
+	UART7->CTL &=~(1<<0);					//1->enable uart, 0->disable uart
+
+	//set HSE for high speed
+	UART7->CTL =	(0<<15) |				//0->clear to send disabled, 1->clear to send enabled
+					(0<<14) |				//0->request to send disabled, 1->request to send enabled
+					(0<<11) |				//1->RTS signal received, 0->RTS not received
+					(0<< 9) |				//1->enable uart receive, 0->disable uart receive
+					(0<< 8) |				//1->enable uart transmit, 0->disable uart transmit
+					(0<< 7) |				//0->normal operation, 1->TX/RX loop back enabled
+					(1<< 5) |				//0->HSE disabled, divide by 16, 1->HSE enabled, divide by 8
+					(0<< 4) |				//0->set TXRIS when UARTIFLS is met, 1->TXRIS set only after all transmitted data have been sent
+					(0<< 3) | 				//0->normal operation, 1->UART in smart card mode
+					(0<< 2) |				//0->low level bits transmitted as active high, 1->uart in SIR low-power mode
+					(0<< 1) |				//0->normal operation, 1->IrDA SIR enabled
+					(0<< 0) |				//0->uart is disabled, 1->uart is enabled
+					0x00;
+	if (GPIOE->AFSEL & (1<<0)) UART7->CTL |= (1<<9); else UART7->CTL &=~(1<<9);	//enable receiving if PE0 is configured for alternate function
+	if (GPIOE->AFSEL & (1<<1)) UART7->CTL |= (1<<8); else UART7->CTL &=~(1<<8);	//enable transmission if PE1 is configured for alternate function
+
+	if (UART7->CTL & (1<<5)) {				//HSE bit set -> divide by 8
+		//calculate the integer baud rate
+		UART7->IBRD = SystemCoreClock / baudrate / 8;
+		//calculate the fractional baud rate = 64*fraction
+		UART7->FBRD = (8 * SystemCoreClock / baudrate - UART7->IBRD * 64);
+	} else {								//HSE bit cleared -> divide by 16
+		//calculate the integer baud rate
+		UART7->IBRD = SystemCoreClock / baudrate / 16;
+		//calculate the fractional baud rate = 64*fraction
+		UART7->FBRD = (4 * SystemCoreClock / baudrate - UART7->IBRD * 64);
+	}
+
+	//configure serial parameters in LCRH
+	UART7->LCRH = 	(0<<7) |				//0->stick parity disabled, 1->stick parity enabled
+					(3<<5) |				//word length. 0->5bit, 1->6bit, 2->7bit, 3->8bit
+					(1<<4) |				//0->fifo disabled, 1->fifo enabled
+					(0<<3) |				//0->1 stop bit, 1->two stop bits
+					(0<<2) |				//0->odd parity, 1->even parity. no effect if parity is disabled (bit 1 cleared)
+					(0<<1) |				//0->parity disabled, 1->parity enabled
+					(0<<0) | 				//0->normal use, 1->send break
+					0x00;
+
+	//configure the uart clock source
+	UART7->CC = 0x00;						//0x00->system clock used, 0x05->PIOSC used
+
+	//clear the flags
+	UART7->IM = 0x00;						//all interrupt disabled
+	UART7->ICR = 0xffff;						//1->clear flags
+
+	//start the uart
+	UART7->CTL |= (1<<0);					//1->enable uart, 0->disable uart
+
+}
+
+
+void Serial7_println(char *str) {
+	Serial7_print(str);
+	Serial7_print("\n\r");
+}
+
+void Serial7_print(char *str) {
+	while (*str) {
+		//while (UART6->FR & (1<<3)) continue;	//wait for transmision to end - most conservative
+		while (UART6->FR & (1<<5)) continue;	//wait for transmision buffer to free up - most aggressive
+		UART6->DR = *str++;
+	}
+}
+
+//only return 1 (indicating data availability), or 0 (no data available)
+char Serial7_available(void) {
+	return (UART6->FR & (1<<4))?1:0;
+}
+
+char Serial7_read(void) {
+	return UART6->DR;
+}
+
