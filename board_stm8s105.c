@@ -564,44 +564,44 @@ int digitalRead(PIN_T pin) {
 void analogWrite(PIN_T pin, uint16_t dc) {
 	switch (pin) {
 	//T1CCP1..4
-#if defined(TIM1_CCMR1_RESET_VALUE)
+#if defined(USE_T1CCP1)
 	case PC1: pinMode(pin, OUTPUT); TIM1->CCR1H = dc >> 8; TIM1->CCR1L = dc; break;	//PC1=T1CC1
 #endif
-#if defined(TIM1_CCMR2_RESET_VALUE)
+#if defined(USE_T1CCP2)
 	case PC2: pinMode(pin, OUTPUT); TIM1->CCR2H = dc >> 8; TIM1->CCR2L = dc; break;	//PC2=T1CC2
 #endif
-#if defined(TIM1_CCMR3_RESET_VALUE)
+#if defined(USE_T1CCP3)
 	case PC3: pinMode(pin, OUTPUT); TIM1->CCR3H = dc >> 8; TIM1->CCR3L = dc; break;	//PC3=T1CC3
 #endif
-#if defined(TIM1_CCMR4_RESET_VALUE)
+#if defined(USE_T1CCP4)
 	case PC4: pinMode(pin, OUTPUT); TIM1->CCR4H = dc >> 8; TIM1->CCR4L = dc; break;	//PC4=T1CC4
 #endif
 
 	//T2CCP1..4
-#if defined(TIM2_CCMR1_RESET_VALUE)
+#if defined(USE_T2CCP1)
 	case PD4: pinMode(pin, OUTPUT); TIM2->CCR1H = dc >> 8; TIM2->CCR1L = dc; break;	//PD4=T2CC1
 #endif
-#if defined(TIM2_CCMR2_RESET_VALUE)
+#if defined(USE_T2CCP2)
 	case PD3: pinMode(pin, OUTPUT); TIM2->CCR2H = dc >> 8; TIM2->CCR2L = dc; break;	//PD3=T2CC2
 #endif
-#if defined(TIM2_CCMR3_RESET_VALUE)
+#if defined(USE_T2CCP3)
 	case PA3: pinMode(pin, OUTPUT); TIM2->CCR3H = dc >> 8; TIM2->CCR3L = dc; break;	//PA3=T2CC3
 #endif
-#if defined(TIM2_CCMR4_RESET_VALUE)
+#if defined(USE_T2CCP4)
 	//case PC4: pinMode(pin, OUTPUT); TIM2->CCR4H = dc >> 8; TIM2->CCR4L = dc; break;	//PC4=T2CC4
 #endif
 	
 	//T3CCP1..4
-#if defined(TIM3_CCMR1_RESET_VALUE)
+#if defined(USE_T3CCP1)
 	case PD2: pinMode(pin, OUTPUT); TIM3->CCR1H = dc >> 8; TIM3->CCR1L = dc; break;	//PD2=T3CC1
 #endif
-#if defined(TIM3_CCMR2_RESET_VALUE)
+#if defined(USE_T3CCP2)
 	case PD0: pinMode(pin, OUTPUT); TIM3->CCR2H = dc >> 8; TIM3->CCR2L = dc; break;	//PD0=T3CC2
 #endif
-#if defined(TIM3_CCMR3_RESET_VALUE)
+#if defined(USE_T3CCP3)
 	//case PA3: pinMode(pin, OUTPUT); TIM3->CCR3H = dc >> 8; TIM3->CCR3L = dc; break;	//PA3=T3CC3
 #endif
-#if defined(TIM3_CCMR4_RESET_VALUE)
+#if defined(USE_T3CCP4)
 	//case PC4: pinMode(pin, OUTPUT); TIM3->CCR4H = dc >> 8; TIM3->CCR4L = dc; break;	//PC4=T3CC4
 #endif
 	

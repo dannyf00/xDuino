@@ -62,6 +62,7 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOE, 1<<6},						//D38= PE6
 	{GPIOE, 1<<7},						//D39= PE7
 
+#if defined(GPIOF)
 	//PF0..7
 	{GPIOF, 1<<0},						//D32= PE0
 	{GPIOF, 1<<1},						//D33= PE1
@@ -71,7 +72,8 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOF, 1<<5},						//D37= PE5
 	{GPIOF, 1<<6},						//D38= PE6
 	{GPIOF, 1<<7},						//D39= PE7
-
+#endif
+	
 #if defined(GPIOG)
 	//PG0..7
 	{GPIOG, 1<<0},						//D32= PE0
@@ -195,6 +197,302 @@ void mcu_init(void) {
 
 	//re-enable the counter
 	TIM4->CR1 |= (1<<0);	
+
+//configure TIM1/CCP1..4
+#if defined(USE_T1CCP1) || defined(USE_T1CCP2) || defined(USE_T1CCP3) || defined(USE_T1CCP4)
+	//configure the time base: as counter, top at CxCCP_PR-1
+	//enable the clock to peripheral
+	CLK->PCKENR1 |= CLK_PCKENR1_TIM1;			//'1'=clock enabled, '0'=clock disabled
+
+	//stop the timer
+	TIM1->CR1 &=~(1<<0);					//stop the timer
+	
+	//set up the timer
+	TIM1->CR1 = (1<<7) |					//'1'->enable auto reload buffer
+	  			(0<<5) |					//'0'->edge aligned. 1..3->center aligned
+				(0<<4) |					//'0'->up counter, '1' downcounter
+				(0<<3) |					//'0'->continuous mode, '1'->one pulse mode
+				(0<<2) |					//'0'-> update enable source
+				(0<<1) |					//'0'-> update enabled
+				(0<<0);						//'0'->counter disabled
+	TIM1->CR2 = 0;							//default value
+	TIM1->SMCR = 0;							//default value
+	TIM1->ETR = 0;							//'0'->external trigger not inverted
+	
+	TIM1->PSCRH = (TxCCP_PS-1) >> 8; TIM1->PSCRL = (TxCCP_PS-1);	//set up the prescaler - msb first
+	TIM1->ARRH  = (TxCCP_PR-1) >> 8; TIM1->ARRL  = (TxCCP_PR-1);	//load up the auto reload register - msb first
+	TIM1->CNTRH = 0; TIM1->CNTRL = 0;			//reset the counter
+	
+	TIM1->SR1&=~(0xff);						//clear UIF
+	TIM1->IER&=~(0xff);						//'1'->enable overflow interrupt, '0'->disable interrupt
+
+	//configure output compare
+#if defined(USE_T1CCP1) && defined(TIM1_CCMR1_RESET_VALUE)
+	TIM1->CCMR1 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(7<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM1->CCER1 = 	(TIM1->CCER1 &~0x0f) |
+					(0<<3) |				//1->CC1N active high, 0->CC1N active low
+					(0<<2) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<1) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<0) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM1->CCR1H = TIM1->CCR1L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T1CCP2) && defined(TIM1_CCMR2_RESET_VALUE)
+	TIM1->CCMR2 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(7<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM1->CCER1 = 	(TIM1->CCER1 &~0xf0) |
+					(0<<7) |				//1->CC1N active high, 0->CC1N active low
+					(0<<6) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<5) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<4) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM1->CCR2H = TIM1->CCR2L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T1CCP3) && defined(TIM1_CCMR3_RESET_VALUE)
+	TIM1->CCMR3 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(7<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM1->CCER2 = 	(TIM1->CCER2 &~0x0f) |
+					(0<<3) |				//1->CC1N active high, 0->CC1N active low
+					(0<<2) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<1) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<0) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM1->CCR3H = TIM1->CCR3L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T1CCP4)  && defined(TIM1_CCMR4_RESET_VALUE)
+	TIM1->CCMR4 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(7<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM1->CCER2 = 	(TIM1->CCER2 &~0xf0) |
+					(0<<7) |				//1->CC1N active high, 0->CC1N active low
+					(0<<6) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<5) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<4) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM1->CCR4H = TIM1->CCR4L = 0;			//0%duty cycle
+#endif
+	
+	TIM1->BKR |= (1<<7);					//1->set main-output-enable bit, 0->reset MOE (main-output-enable) bit
+	//re-enable the counter
+	TIM1->CR1 |= (1<<0);	
+
+#endif
+	
+//configure TIM2/CCP1..4
+#if defined(USE_T2CCP1) || defined(USE_T2CCP2) || defined(USE_T2CCP3) || defined(USE_T2CCP4)
+	//configure the time base: as counter, top at CxCCP_PR-1
+	//enable the clock to peripheral
+	CLK->PCKENR1 |= CLK_PCKENR1_TIM2;			//'1'=clock enabled, '0'=clock disabled
+
+	//stop the timer
+	TIM2->CR1 &=~(1<<0);					//stop the timer
+	
+	//set up the timer
+	TIM2->CR1 = (1<<7) |					//'1'->enable auto reload buffer
+	  			(0<<5) |					//'0'->edge aligned. 1..3->center aligned
+				(0<<4) |					//'0'->up counter, '1' downcounter
+				(0<<3) |					//'0'->continuous mode, '1'->one pulse mode
+				(0<<2) |					//'0'-> update enable source
+				(0<<1) |					//'0'-> update enabled
+				(0<<0);						//'0'->counter disabled
+	//TIM2->CR2 = 0;							//default value
+	//TIM2->SMCR = 0;							//default value
+	//TIM2->ETR = 0;							//'0'->external trigger not inverted
+	
+	/*TIM2->PSCRH = (TxCCP_PS-1) >> 8; */TIM2->PSCR/*L*/ = (TxCCP_PS-1);	//set up the prescaler - msb first
+	TIM2->ARRH  = (TxCCP_PR-1) >> 8; TIM2->ARRL  = (TxCCP_PR-1);	//load up the auto reload register - msb first
+	TIM2->CNTRH = 0; TIM2->CNTRL = 0;			//reset the counter
+	
+	TIM2->SR1&=~(0xff);						//clear UIF
+	TIM2->IER&=~(0xff);						//'1'->enable overflow interrupt, '0'->disable interrupt
+
+	//configure output compare
+#if defined(USE_T2CCP1) && defined(TIM2_CCMR1_RESET_VALUE)
+	TIM2->CCMR1 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM2->CCER1 = 	(TIM2->CCER1 &~0x0f) |
+					(0<<3) |				//1->CC1N active high, 0->CC1N active low
+					(0<<2) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<1) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<0) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM2->CCR1H = TIM2->CCR1L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T2CCP2) && defined(TIM2_CCMR2_RESET_VALUE)
+	TIM2->CCMR2 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM2->CCER1 = 	(TIM2->CCER1 &~0xf0) |
+					(0<<7) |				//1->CC1N active high, 0->CC1N active low
+					(0<<6) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<5) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<4) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM2->CCR2H = TIM2->CCR2L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T2CCP3) && defined(TIM2_CCMR3_RESET_VALUE)
+	TIM2->CCMR3 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM2->CCER2 = 	(TIM2->CCER2 &~0x0f) |
+					(0<<3) |				//1->CC1N active high, 0->CC1N active low
+					(0<<2) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<1) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<0) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM2->CCR3H = TIM2->CCR3L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T2CCP4) && defined(TIM2_CCMR4_RESET_VALUE)
+	TIM2->CCMR4 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM2->CCER2 = 	(TIM2->CCER2 &~0xf0) |
+					(0<<7) |				//1->CC1N active high, 0->CC1N active low
+					(0<<6) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<5) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<4) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM2->CCR4H = TIM2->CCR4L = 0;			//0%duty cycle
+#endif
+	//TIM2->BKR |= (1<<7);					//1->set main-output-enable bit, 0->reset MOE (main-output-enable) bit
+	//re-enable the counter
+	TIM2->CR1 |= (1<<0);	
+
+#endif
+	
+//configure TIM3/CCP1..4
+#if defined(USE_T3CCP1) || defined(USE_T3CCP2) || defined(USE_T3CCP3) || defined(USE_T3CCP4)
+	//configure the time base: as counter, top at CxCCP_PR-1
+	//enable the clock to peripheral
+	CLK->PCKENR1 |= CLK_PCKENR1_TIM3;			//'1'=clock enabled, '0'=clock disabled
+
+	//stop the timer
+	TIM3->CR1 &=~(1<<0);					//stop the timer
+	
+	//set up the timer
+	TIM3->CR1 = (1<<7) |					//'1'->enable auto reload buffer
+	  			(0<<5) |					//'0'->edge aligned. 1..3->center aligned
+				(0<<4) |					//'0'->up counter, '1' downcounter
+				(0<<3) |					//'0'->continuous mode, '1'->one pulse mode
+				(0<<2) |					//'0'-> update enable source
+				(0<<1) |					//'0'-> update enabled
+				(0<<0);						//'0'->counter disabled
+	//TIM3->CR2 = 0;							//default value
+	//TIM3->SMCR = 0;							//default value
+	//TIM3->ETR = 0;							//'0'->external trigger not inverted
+	
+	/*TIM3->PSCRH = (TxCCP_PS-1) >> 8;*/ TIM3->PSCR/*L*/ = (TxCCP_PS-1);	//set up the prescaler - msb first
+	TIM3->ARRH  = (TxCCP_PR-1) >> 8; TIM3->ARRL  = (TxCCP_PR-1);	//load up the auto reload register - msb first
+	TIM3->CNTRH = 0; TIM3->CNTRL = 0;			//reset the counter
+	
+	TIM3->SR1&=~(0xff);						//clear UIF
+	TIM3->IER&=~(0xff);						//'1'->enable overflow interrupt, '0'->disable interrupt
+
+	//configure output compare
+#if defined(USE_T3CCP1) && defined(TIM3_CCMR1_RESET_VALUE)
+	TIM3->CCMR1 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM3->CCER1 = 	(TIM3->CCER1 &~0x0f) |
+					(0<<3) |				//1->CC1N active high, 0->CC1N active low
+					(0<<2) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<1) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<0) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM3->CCR1H = TIM3->CCR1L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T3CCP2) && defined(TIM3_CCMR2_RESET_VALUE)
+	TIM3->CCMR2 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM3->CCER1 = 	(TIM3->CCER1 &~0xf0) |
+					(0<<7) |				//1->CC1N active high, 0->CC1N active low
+					(0<<6) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<5) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<4) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM3->CCR2H = TIM3->CCR2L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T3CCP3) && defined(TIM3_CCMR3_RESET_VALUE)
+	TIM3->CCMR3 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM3->CCER2 = 	(TIM3->CCER2 &~0x0f) |
+					(0<<3) |				//1->CC1N active high, 0->CC1N active low
+					(0<<2) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<1) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<0) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM3->CCR3H = TIM3->CCR3L = 0;			//0%duty cycle
+#endif
+	
+#if defined(USE_T3CCP4) && defined(TIM3_CCMR4_RESET_VALUE)
+	TIM3->CCMR4 = 	(0<<7) |				//1->clear enabled; 0->clear not enabled
+					(6<<4) |				//6->pwm mode 1, 7->pwm mode 2
+					(1<<3) |				//0->output preload disabled, 1->output preload enabled
+					(0<<2) |				//0->normal operation, 1->enabled output compare fast
+					(0<<0) |				//0->output compare as output pin, 1->CC1 as input, 2->CC! as input, 3->CC1 as input
+					0x00;
+	TIM3->CCER2 = 	(TIM3->CCER2 &~0xf0) |
+					(0<<7) |				//1->CC1N active high, 0->CC1N active low
+					(0<<6) |				//1->CC1N enabled, 0->CC1N disabled
+					(1<<5) |				//0->CC1 normal polarity, 1->CC1 reverse polarity
+					(1<<4) |				//1->enable CC1, 0->disable CC1
+					0x00;
+	TIM3->CCR4H = TIM3->CCR4L = 0;			//0%duty cycle
+#endif
+	//TIM3->BKR |= (1<<7);					//1->set main-output-enable bit, 0->reset MOE (main-output-enable) bit
+	//re-enable the counter
+	TIM3->CR1 |= (1<<0);	
+
+#endif
+	
 	//timer0 is running now
 	enableInterrupts();						//enable interrupts globally
 }
@@ -260,4 +558,54 @@ int digitalRead(PIN_T pin) {
 	gpio=GPIO_PinDef[pin].gpio;							//get gpio address
 	mask=GPIO_PinDef[pin].mask;
 	return IO_GET(gpio, mask)?HIGH:LOW;
+}
+
+//analogWrite / pwm output
+void analogWrite(PIN_T pin, uint16_t dc) {
+	switch (pin) {
+	//T1CCP1..4
+#if defined(USE_T1CCP1)
+	case PC1: pinMode(pin, OUTPUT); TIM1->CCR1H = dc >> 8; TIM1->CCR1L = dc; break;	//PC1=T1CC1
+#endif
+#if defined(USE_T1CCP2)
+	case PC2: pinMode(pin, OUTPUT); TIM1->CCR2H = dc >> 8; TIM1->CCR2L = dc; break;	//PC2=T1CC2
+#endif
+#if defined(USE_T1CCP3)
+	case PC3: pinMode(pin, OUTPUT); TIM1->CCR3H = dc >> 8; TIM1->CCR3L = dc; break;	//PC3=T1CC3
+#endif
+#if defined(USE_T1CCP4)
+	case PC4: pinMode(pin, OUTPUT); TIM1->CCR4H = dc >> 8; TIM1->CCR4L = dc; break;	//PC4=T1CC4
+#endif
+
+	//T2CCP1..4
+#if defined(USE_T2CCP1)
+	case PD4: pinMode(pin, OUTPUT); TIM2->CCR1H = dc >> 8; TIM2->CCR1L = dc; break;	//PD4=T2CC1
+#endif
+#if defined(USE_T2CCP2)
+	case PD3: pinMode(pin, OUTPUT); TIM2->CCR2H = dc >> 8; TIM2->CCR2L = dc; break;	//PD3=T2CC2
+#endif
+#if defined(USE_T2CCP3)
+	case PA3: pinMode(pin, OUTPUT); TIM2->CCR3H = dc >> 8; TIM2->CCR3L = dc; break;	//PA3=T2CC3
+#endif
+#if defined(USE_T2CCP4)
+	//case PC4: pinMode(pin, OUTPUT); TIM2->CCR4H = dc >> 8; TIM2->CCR4L = dc; break;	//PC4=T2CC4
+#endif
+	
+	//T3CCP1..4
+#if defined(USE_T3CCP1)
+	case PD2: pinMode(pin, OUTPUT); TIM3->CCR1H = dc >> 8; TIM3->CCR1L = dc; break;	//PD2=T3CC1
+#endif
+#if defined(USE_T3CCP2)
+	case PD0: pinMode(pin, OUTPUT); TIM3->CCR2H = dc >> 8; TIM3->CCR2L = dc; break;	//PD0=T3CC2
+#endif
+#if defined(USE_T3CCP3)
+	//case PA3: pinMode(pin, OUTPUT); TIM3->CCR3H = dc >> 8; TIM3->CCR3L = dc; break;	//PA3=T3CC3
+#endif
+#if defined(USE_T3CCP4)
+	//case PC4: pinMode(pin, OUTPUT); TIM3->CCR4H = dc >> 8; TIM3->CCR4L = dc; break;	//PC4=T3CC4
+#endif
+	
+	//T5CCP1..4, if available
+	
+	}
 }

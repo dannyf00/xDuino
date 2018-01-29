@@ -21,6 +21,29 @@ typedef   signed short 	 int16_t;
 typedef   signed long 	 int32_t;
 */
 
+//hardware configuration
+#define TxCCP_PS			1					//timer prescaler for pwm generation / analogWrite
+#define TxCCP_PR			(10000)			//timer period for pwm generatin / analogWrite
+//pin out for TSSOP package
+//#define USE_T1CCP1			//PC1
+//#define USE_T1CCP2			//PC2
+#define USE_T1CCP3			//PC3
+#define USE_T1CCP4			//PC4
+#define USE_T2CCP1			//PD4
+#define USE_T2CCP2			//PD3
+#define USE_T2CCP3			//PA3
+//#define USE_T2CCP4			//
+//#define USE_T3CCP1			//PD2
+//#define USE_T3CCP2			//PD0
+//#define USE_T3CCP3
+//#define USE_T3CCP4
+//#define USE_T5CCP1
+//#define USE_T5CCP2
+//#define USE_T5CCP3
+//#define USE_T5CCP4
+
+//end hardware configuration
+
 //put board specific defs here
 //user must provide the following macros
 #define F_CPU				(16000000ul/1)		//CPU frequency, in Hz
@@ -62,6 +85,9 @@ typedef enum {
 	PE0,  PE1,  PE2,  PE3,  PE4,  PE5,  PE6,  PE7,		//maps to PE0..7
 #if defined(GPIOF)
 	PF0,  PF1,  PF2,  PF3,  PF4,  PF5,  PF6,  PF7,		//maps to PF0..7
+#endif
+#if defined(GPIOG)
+	PG0,  PG1,  PG2,  PG3,  PG4,  PG5,  PG6,  PG7,		//maps to PG0..7
 #endif
 #if defined(GPIOH)
 	PH0,  PH1,  PH2,  PH3,  PH4,  PH5,  PH6,  PH7,		//maps to PH0..7
