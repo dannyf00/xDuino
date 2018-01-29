@@ -123,8 +123,9 @@ const PIN2GPIO GPIO_PinDef[]={
 
 //timer4 overflow interrupt handler
 //tim4 isr handler
-#pragma vector = TIM4_OVR_UIF_vector			//tim4 overflow interrupt
-__interrupt void tim4_ovr_isr(void) {
+//#pragma vector = TIM4_OVR_UIF_vector			//tim4 overflow interrupt
+//__interrupt void tim4_ovr_isr(void) {
+INTERRUPT_HANDLER(tim4_ovr_isr, TIM4_OVR_UIF_vector) {
 	//clear the flag - done automatically
 	TIM4->SR1 &=~(1<<0);						//TIM4_SR_UIF=0;							//clear the flag
 	timer_ticks+= 0x100;						//increment timer ticks - tim4 is 8-bit wide

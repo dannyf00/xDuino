@@ -12,6 +12,7 @@ volatile uint32_t timer_ticks=0;		//timer ticks, 32-bit
 const PIN2GPIO GPIO_PinDef[]={
 	//has to mamtch PIN_T def in boards.h
 	//starting with D0
+#if defined(GPIOA)
 	//PA0..7
 	{GPIOA, 1<<0},						//D0 = PA0
 	{GPIOA, 1<<1},						//D1 = PA1
@@ -21,7 +22,9 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOA, 1<<5},						//D5 = PA5
 	{GPIOA, 1<<6},						//D6 = PA6
 	{GPIOA, 1<<7},						//D7 = PA7
-
+#endif
+	
+#if defined(GPIOB)
 	//PB0..7
 	{GPIOB, 1<<0},						//D8 = PB0
 	{GPIOB, 1<<1},						//D9 = PB1
@@ -31,7 +34,9 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOB, 1<<5},						//D13= PB5
 	{GPIOB, 1<<6},						//D14= PB6
 	{GPIOB, 1<<7},						//D15= PB7
-
+#endif
+	
+#if defined(GPIOC)
 	//PC0..7
 	{GPIOC, 1<<0},						//D16= PC0
 	{GPIOC, 1<<1},						//D17= PC1
@@ -41,7 +46,9 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOC, 1<<5},						//D21= PC5
 	{GPIOC, 1<<6},						//D22= PC6
 	{GPIOC, 1<<7},						//D23= PC7
-
+#endif
+	
+#if defined(GPIOD)
 	//PD0..7
 	{GPIOD, 1<<0},						//D24= PD0
 	{GPIOD, 1<<1},						//D25= PD1
@@ -51,7 +58,9 @@ const PIN2GPIO GPIO_PinDef[]={
 	{GPIOD, 1<<5},						//D29= PD5
 	{GPIOD, 1<<6},						//D30= PD6
 	{GPIOD, 1<<7},						//D31= PD7
-
+#endif
+	
+#if defined(GPIOE)
 	//PE0..7
 	{GPIOE, 1<<0},						//D32= PE0
 	{GPIOE, 1<<1},						//D33= PE1
@@ -113,8 +122,9 @@ const PIN2GPIO GPIO_PinDef[]={
 
 //timer4 overflow interrupt handler
 //tim4 isr handler
-#pragma vector = TIM4_OVR_UIF_vector			//tim4 overflow interrupt
-__interrupt void tim4_ovr_isr(void) {
+//#pragma vector = TIM4_OVR_UIF_vector			//tim4 overflow interrupt
+//__interrupt void tim4_ovr_isr(void) {
+INTERRUPT_HANDLER(tim4_ovr_isr, TIM4_OVR_UIF_vector) {
 	//clear the flag - done automatically
 	TIM4->SR1 &=~(1<<0);						//TIM4_SR_UIF=0;							//clear the flag
 	timer_ticks+= 0x100;						//increment timer ticks - tim4 is 8-bit wide
